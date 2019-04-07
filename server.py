@@ -12,19 +12,40 @@ def get_flight_data(request):
     destination = request.params.get('to', [])
     start = request.params.get('depart', '')
     end = request.params.get('return', [])
+    stop = request.params.get('stop', 0)
     response = requests.get(HOST + BASE_URL,
-                           params = {
+                           params={
                                "from": origin,
                                "to": destination,
                                "depart": start,
                                "return": end,
+                               "stop": stop,
                                "format": "v3"},
                            )
     logging.info("request url {}".format(response.url))
     response = response.json()
     flights = response.get("flights", {})
+    flights = filter_stops(stop=stop, flights=flights)
     itinerary = response.get("itineraries", {})
+    itinerary = filter_itinerary(flights.keys(), itinerary)
     return {"flights": flights, "itiner": itinerary}
+
+
+def filter_stops(stop=0, flights={}):
+    filter_flights = dict()
+    for flight_key, value in flights.iteritems():
+        if len(value["segments"]) == stop+1:
+            filter_flights.update({flight_key: value})
+    return filter_flights
+
+
+def filter_itinerary(flight_keys, itinerary):
+    filter_outbound = []
+    flight_prices = itinerary.get("outbound", [])
+    for price in flight_prices:
+        if price.get("flight", "") in flight_keys:
+            filter_outbound.append(price)
+    return {"itineraries": {"outbound": filter_outbound}}
 
 
 def main():
