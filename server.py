@@ -30,7 +30,8 @@ def get_flight_data(request):
     itinerary = response.get("itineraries", {})
     final_flights = filter_itinerary(flights, itinerary)
     if flight_time:
-        final_flights = filter_time(final_flights, time=flight_time)
+        logging.info("Flight Time: {}".format(flight_time))
+        final_flights = filter_time(final_flights, flight_time=flight_time)
     if duration:
         final_flights = filter_duration(final_flights, duration=int(duration))
     return final_flights
@@ -53,15 +54,15 @@ def filter_itinerary(flights, itinerary):
     return flights
 
 
-def filter_time(flights, time):
+def filter_time(flights, flight_time):
     flights_time = {}
     for k, v in flights.iteritems():
         depart_time = v.get("segments", [])[0].get("departure", {}).get("time", "")
         depart_hour = parse(depart_time).hour
-        if time == "evening":
+        if flight_time == "evening":
             if depart_hour > 17:
                 flights_time[k] = v
-        elif time == "morning":
+        elif flight_time == "morning":
             if depart_hour < 10:
                 flights_time[k] = v
     return flights_time
