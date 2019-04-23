@@ -1,0 +1,17 @@
+version : '2'
+services:
+  server:
+    image: skip-proxy:v1
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./src/server.py:/app/src/server.py
+  mongodb:
+    image: bitnami/mongodb:4.0
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/bitnami
+
+volumes:
+  mongodb_data:
+    driver: local

@@ -5,7 +5,7 @@ import datetime
 import traceback
 import sys
 from dateutil.parser import parse
-from constants import SKIPTRIP_HOST, SKIPTRIP_URL
+from src.constants import SKIPTRIP_HOST, SKIPTRIP_URL
 import csv
 
 
@@ -64,23 +64,25 @@ def write_csv(input, filename):
     print input
     with open("output/"+filename+"_"+str(datetime.datetime.now())+".csv", "wb") as f:
         csvfile = csv.writer(f)
+        csvfile.writerow(["key", "itineraries", "price"])
         csvfile.writerows(input)
 
 
 if __name__ == '__main__':
     import logging; logging.basicConfig(level=logging.DEBUG)
-    price_limit = 350
-    flights = flights_by_day(origin="SFO", dest="PHL", depart="2019-04-12", ret="", flight_time="evening", weeks=1,
-                             stop=1)
+    price_limit = 250
+    flights = flights_by_day(origin="SFO", dest="PHL", depart="2019-04-28", ret="", flight_time="evening", weeks=4,
+                             stop=2)
     final_data = filter_by_price(flights, price_limit)
-    write_csv(final_data, "sfo_phl")
+    print final_data
+    # write_csv(final_data, "sfo_phl")
     sys.exit(0)
     flights = flights_by_day(origin="OAK", dest="PHL", depart="2019-04-12", ret="", flight_time="evening", weeks=7,
-                             stop=1)
+                             stop=2)
     final_data = filter_by_price(flights, price_limit)
     write_csv(final_data, "oak_phl")
 
     flights = flights_by_day(origin="PHL", dest="SFO", depart="2019-04-15", ret="", flight_time="morning", weeks=7,
-                             stop=1)
+                             stop=2)
     final_data = filter_by_price(flights, price_limit)
     write_csv(final_data, "phl_sfo")
