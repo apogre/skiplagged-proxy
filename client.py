@@ -52,11 +52,20 @@ def filter_by_price(flights, price_limit):
     flight_data = []
     for flight in flights:
         for k, v in flight.iteritems():
+            mongo_data = dict()
             data = v.get("data", "").split("|")
+            data_key = data[0]
+            #check data_key in mongodb
             price = v.get("price", "")
+            import pdb; pdb.set_trace()
             if price <= price_limit:
+                mongo_data["key"] = data[0]
+                mongo_data["flight"] = data[1].get("legs",[])
+                mongo_data["key1"] = data[1].get("key","")
+                price_date = datetime.datetime.today().strftime('%Y-%m-%d')
+                mongo_data[price_date] = price
                 data.append(price)
-                flight_data.append(data)
+                flight_data.append(mongo_data)
     return flight_data
 
 
@@ -71,7 +80,7 @@ def write_csv(input, filename):
 if __name__ == '__main__':
     import logging; logging.basicConfig(level=logging.DEBUG)
     price_limit = 250
-    flights = flights_by_day(origin="SFO", dest="PHL", depart="2019-04-28", ret="", flight_time="evening", weeks=4,
+    flights = flights_by_day(origin="SFO", dest="PHL", depart="2019-04-28", ret="", flight_time="evening", weeks=0,
                              stop=2)
     final_data = filter_by_price(flights, price_limit)
     print final_data
