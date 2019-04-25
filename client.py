@@ -7,6 +7,7 @@ import sys
 from dateutil.parser import parse
 from src.constants import SKIPTRIP_HOST, SKIPTRIP_URL
 import csv
+from pymongo import MongoClient, errors
 
 
 def api_query(SKIPTRIP_HOST, params):
@@ -53,20 +54,38 @@ def filter_by_price(flights, price_limit):
     for flight in flights:
         for k, v in flight.iteritems():
             mongo_data = dict()
-            data = v.get("data", "").split("|")
-            data_key = data[0]
+            # print k,v
             #check data_key in mongodb
             price = v.get("price", "")
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             if price <= price_limit:
-                mongo_data["key"] = data[0]
-                mongo_data["flight"] = data[1].get("legs",[])
-                mongo_data["key1"] = data[1].get("key","")
+                data = v.get("data", "").split("|")
+                mongo_data["data_key"] = data[0]
+                main_data = json.loads(data[1])
+                mongo_data["flight"] = main_data.get("legs", [])
+                mongo_data["stops"] = v.get("count", 0)
+                mongo_data["segments"] = v.get("segments", [])
+                mongo_data["key"] = main_data.get("key","")
+                mongo_data["duration"] = v.get("duration", 0)
                 price_date = datetime.datetime.today().strftime('%Y-%m-%d')
                 mongo_data[price_date] = price
                 data.append(price)
                 flight_data.append(mongo_data)
+                # print mongo_data
+                # sys.exit(0)
     return flight_data
+
+
+def mongo_client():
+    try:
+        client = MongoClient("mongodb://localhost:27017")
+        logging.info("DB Connected")
+    except errors.ConnectionFailure as e:
+        logging.info("Connection Failure: {}".format(e))
+    else:
+        db = client.flights_db_t
+        col = db.flights_col_t
+        return col
 
 
 def write_csv(input, filename):
@@ -79,10 +98,15 @@ def write_csv(input, filename):
 
 if __name__ == '__main__':
     import logging; logging.basicConfig(level=logging.DEBUG)
-    price_limit = 250
+    price_limit = 750
     flights = flights_by_day(origin="SFO", dest="PHL", depart="2019-04-28", ret="", flight_time="evening", weeks=0,
                              stop=2)
     final_data = filter_by_price(flights, price_limit)
+    for data in final_data:
+        print data
+    sys.exit(0)
+    col = mongo_client()
+    col.insert()
     print final_data
     # write_csv(final_data, "sfo_phl")
     sys.exit(0)
