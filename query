@@ -1,0 +1,1 @@
+db.getCollection('flights_col').find({"$or":[{"destination":"PHL"},{"destination":"SFO"}]})
