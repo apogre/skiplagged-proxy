@@ -1,10 +1,25 @@
+from pyramid.response import Response
 from constants import SKIPLAGGED_HOST, SKIPLAGGED_URL
 from pyramid.config import Configurator
 from paste.deploy.config import PrefixMiddleware
 from waitress import serve
-from pyramid.view import view_config
+from pyramid.view import view_config, notfound_view_config
 import requests
 from dateutil.parser import parse
+import json
+
+
+@view_config(renderer='json')
+def home(request):
+    return {'info': 'Skiplagged Proxy API'}
+
+
+@notfound_view_config()
+def notfound(request):
+    return Response(
+        body=json.dumps({'message': 'Content Not Found'}),
+        status= "404 Not Found",
+        content_type="application/json")
 
 
 @view_config(route_name='query', renderer='json', request_method='GET')
