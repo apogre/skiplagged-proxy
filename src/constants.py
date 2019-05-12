@@ -1,5 +1,7 @@
 import ConfigParser
+import datetime
 
+price_date = datetime.datetime.today().strftime('%Y-%m-%dT%H')
 
 config_path = 'config.ini'
 config = ConfigParser.ConfigParser()

@@ -2,5 +2,7 @@ db.getCollection('flights_col').find({"$or":[{"destination":"PHL"},{"destination
 
 db.getCollection('flights_col').find({"departure": /2019-06-14/}).sort( { "departure": 1 } )
 
+db.getCollection('flights_col').find({"$or":[{"destination":"PHL"}]}).sort( { "departure": 1 } )
+
 
 db.getCollection('flights_col').find({"departure" : { $gte : "2019-06-18" }});
