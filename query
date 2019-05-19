@@ -6,3 +6,22 @@ db.getCollection('flights_col').find({"$or":[{"destination":"PHL"}]}).sort( { "d
 
 
 db.getCollection('flights_col').find({"departure" : { $gte : "2019-06-18" }});
+
+db.getCollection('flights_col').find
+    (
+        {"$and":
+            [
+                {"departure": /2019-06-14/},
+                {"2019-05-14T21":{$exists:true}}
+              ]}
+    ).sort( { "departure": 1 } )
+
+
+ db.getCollection('flights_col').find
+    (
+        {"$and":
+            [
+//                 {"departure": /2019-06-14/},
+                {"2019-05-19T10":{$exists:true}}
+              ]}, {origin:1, destination:1, departure:1, duration:1, '2019-05-19T10':1, _id:0}
+    ).sort( { "departure": 1 } )
